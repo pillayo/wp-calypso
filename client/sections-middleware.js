@@ -40,7 +40,9 @@ function createPageDefinition( path, sectionDefinition ) {
 			return next();
 		}
 
+		console.log('pagehandler called:', pathRegex, sectionDefinition.module);
 		if ( _loadedSections[ sectionDefinition.module ] ) {
+			console.log('returning already activated section', sectionDefinition.module);
 			return activateSection( sectionDefinition, context, next );
 		}
 		dispatch( { type: 'SECTION_SET', isLoading: true } );
@@ -50,16 +52,21 @@ function createPageDefinition( path, sectionDefinition ) {
 			() => dispatch( bumpStat( 'calypso_chunk_waiting', sectionDefinition.name ) ),
 			400
 		);
-
+		
+		console.log('gonna preload', sectionDefinition.name, sectionDefinition.module);
 		preload( sectionDefinition.name )
 			.then( requiredModules => {
+				console.log('done preloading', sectionDefinition.module);
 				if ( ! _loadedSections[ sectionDefinition.module ] ) {
+					console.log('going to init modules:', sectionDefinition.module, requiredModules.length);
 					requiredModules.forEach( mod => mod.default( controller.clientRouter ) );
+					console.log('init loop done');
 					_loadedSections[ sectionDefinition.module ] = true;
 				}
 				return activateSection( sectionDefinition, context, next );
 			} )
 			.catch( error => {
+				console.log( 'caught error while preloading', sectionDefinition.module);
 				console.error( error ); // eslint-disable-line
 				if ( ! LoadingError.isRetry() && process.env.NODE_ENV !== 'development' ) {
 					LoadingError.retry( sectionDefinition.name );
