@@ -14,6 +14,21 @@
 	margin-bottom: 16px;
 }
 
+.activity-log-item.is-aggregated {
+	.foldable-card__main {
+		white-space: pre;
+	}
+	.foldable-card__content {
+		.foldable-card__main {
+			white-space: unset;
+		}
+	}
+}
+
+.activity-log-item.activity-log-item__restore-confirm .card {
+	white-space: normal;
+}
+
 .activity-log-item .foldable-card {
 	.foldable-card__expand .gridicon {
 		transform: none;
@@ -44,6 +59,8 @@
 	flex-grow: 0;
 
 	.foldable-card__summary {
+		display: flex;
+		align-items: center;
 		margin-right: 0;
 	}
 }
@@ -62,6 +79,14 @@
 
 	.is-loading & {
 		align-self: center;
+	}
+}
+
+.activity-log-item.is-aggregated {
+	.foldable-card__content {
+		.activity-log-item__type {
+			background: $white;
+		}
 	}
 }
 
@@ -362,6 +387,18 @@
 		&.is-desktop {
 			display: inline-block;
 		}
+	}
+}
+
+.activity-log-item__footer {
+	display: flex;
+	justify-content: space-between;
+	padding: 16px 0 0;
+	margin: 0;
+	border-top: 1px solid $gray-light;
+
+	p {
+		margin-bottom: 0;
 	}
 }
 
