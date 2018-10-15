@@ -200,12 +200,15 @@ export const startImport = ( siteId, importerType ) => {
 	// Use a fake ID until the server returns the real one
 	const importerId = `${ ID_GENERATOR_PREFIX }${ Math.round( Math.random() * 10000 ) }`;
 
-	return {
+	const action = {
 		type: IMPORTS_IMPORT_START,
 		importerId,
 		importerType,
 		siteId,
 	};
+
+	Dispatcher.handleViewAction( action );
+	return action;
 };
 
 export function startImporting( importerStatus ) {
