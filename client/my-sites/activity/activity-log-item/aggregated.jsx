@@ -5,6 +5,7 @@
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { localize } from 'i18n-calypso';
+import { omit } from 'lodash';
 import React, { Component, Fragment } from 'react';
 /**
  * Internal dependencies
@@ -21,6 +22,7 @@ import Button from '../../../components/button';
 import { getActivityLogFilter } from 'state/selectors/get-activity-log-filter';
 import { filterStateToQuery } from 'state/activity-log/utils';
 import { addQueryArgs } from 'lib/url';
+import ActivityActor from './activity-actor';
 
 const MAX_STREAM_ITEMS_IN_AGGREGATE = 10;
 
@@ -32,7 +34,7 @@ class ActivityLogAggregatedItem extends Component {
 			moment,
 			timezone,
 		} = this.props;
-		const newFilter = Object.assign( {}, filter, {
+		const newFilter = Object.assign( {}, omit( filter, [ 'dateRange', 'on' ] ), {
 			before: adjustMoment( { timezone, moment: moment( firstPublishedDate ) } )
 				.add( 1, 'second' )
 				.format(),
@@ -45,6 +47,28 @@ class ActivityLogAggregatedItem extends Component {
 		const query = filterStateToQuery( newFilter );
 
 		return addQueryArgs( query, window.location.pathname + window.location.hash );
+	}
+
+	renderHeader() {
+		const { activity } = this.props;
+		const { actorAvatarUrl, actorName, actorRole, actorType, multipleActors } = activity;
+		let actor;
+		if ( multipleActors ) {
+			actor = <ActivityActor actorType="Multiple" />;
+		} else {
+			actor = <ActivityActor { ...{ actorAvatarUrl, actorName, actorRole, actorType } } />;
+		}
+
+		return (
+			<div className="activity-log-item__card-header">
+				{ actor }
+				<div className="activity-log-item__description">
+					<div className="activity-log-item__description-content">
+						<ActivityDescription activity={ activity } />
+					</div>
+				</div>
+			</div>
+		);
 	}
 
 	render() {
@@ -70,10 +94,7 @@ class ActivityLogAggregatedItem extends Component {
 					</div>
 					<ActivityIcon activityIcon={ activityIcon } activityStatus={ activityStatus } />
 				</div>
-				<FoldableCard
-					className="activity-log-item__card"
-					header={ <ActivityDescription activity={ activity } /> }
-				>
+				<FoldableCard className="activity-log-item__card" header={ this.renderHeader() }>
 					{ activity.streams.map( log => (
 						<Fragment key={ log.activityId }>
 							<ActivityLogItem
